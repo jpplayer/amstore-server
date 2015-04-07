@@ -15,6 +15,7 @@ flask/bin/pip install guess_language
 flask/bin/pip install flipflop
 flask/bin/pip install coverage
 flask/bin/pip install pyyaml
+flask/bin/pip install flask-httpauth
 
 mkdir -p /var/lib/amstore/APPS
 mkdir -p /var/lib/amstore/TMP

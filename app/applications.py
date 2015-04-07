@@ -1,10 +1,25 @@
 from app import app
 from flask import Flask, send_from_directory
 from flask import jsonify, abort, request, url_for
+from flask import make_response
+from flask.ext.httpauth import HTTPBasicAuth
 import os, shutil
 import yaml
 
 from werkzeug import secure_filename
+
+auth = HTTPBasicAuth()
+
+@auth.get_password
+def get_password(username):
+    if username == 'contrib':
+        return 'hortonworks455!'
+    return None
+
+@auth.error_handler
+def unauthorized():
+    return make_response(jsonify({'error': 'Unauthorized access'}), 401)
+#     return make_response(jsonify({'error': 'Unauthorized access'}), 403)
 
 applications = []
 # For caching purpose. TODO: Use a database instead. This is maintained by upsert_application ().
@@ -284,6 +299,7 @@ def get_application(application_id):
 	return jsonify( {'application': make_public_application( application[0]) }) 
 
 @app.route('/api/v1/config', methods=['POST','PUT'])
+@auth.login_required
 def create_update_config():
      if not request.files or not 'file' in request.files:
           abort(400)
@@ -303,7 +319,7 @@ def create_update_config():
                 abort( 400, 'Error parsing YAML file: ') 
 	
 @app.route('/api/v1/applications', methods=['POST'])
-
+@auth.login_required
 def create_application():
 	if not request.files or not 'file' in request.files:
 		abort(400)
@@ -322,7 +338,7 @@ def create_application():
 # curl -i -H "Content-Type: application/json" -X DELETE http://localhost:5000/api/v1/applications/2
 
 @app.route('/api/v1/applications/<string:application_id>', methods=['DELETE'])
-
+@auth.login_required
 # Warning: we must also maintain the application cache.
 def delete_application(application_id):
 	application = [application for application in applications if application['id'] == application_id]
@@ -338,6 +354,7 @@ def delete_application(application_id):
 # Delete application. If version is empty we delete all versions (dangerous!)
 # Also, TODO: change application cache behavior, it's too easy to forget about it
 @app.route('/api/v1/delete_application', methods=['POST'])
+@auth.login_required
 def post_delete_application(  ):
 	if not request.form['app_id'] :
         	abort(400)
@@ -363,6 +380,7 @@ def post_delete_application(  ):
 	
 
 @app.route('/api/v1/submit_application', methods=['GET'])
+@auth.login_required
 def app_submit_form():
 	return '''
     <!doctype html>
@@ -376,6 +394,7 @@ def app_submit_form():
 
 
 @app.route('/api/v1/submit_config', methods=['GET'])
+@auth.login_required
 def app_config_form():
         return '''
     <!doctype html>
@@ -390,6 +409,7 @@ def app_config_form():
 '''
 
 @app.route('/api/v1/delete_application_form', methods=['GET'])
+@auth.login_required
 def app_delete_form():
 
         return '''
