@@ -28,7 +28,7 @@ applications_latest = []
 # Upload section
 def allowed_file(filename):
     return '.' in filename and \
-		filename.endswith( '.tar.gz' ) or filename.endswith('.tgz')
+		filename.endswith( '.tar.gz' ) or filename.endswith('.tgz') or filename.endswith('.yaml')
 #           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
 import threading
@@ -133,48 +133,54 @@ def app_upsert_latest_application( application ):
 def app_create_application_from_archive( archive ):
 
         if archive and allowed_file(archive.filename):
+		# This can be either a .tar.gz/.tgz or it can directly be a .yaml
+
                 filename = secure_filename(archive.filename)
 
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                archive.save(filepath)
+		if filename.endswith('.yaml'):
+			a=''
+		else:
 
-                tmp_folder =  get_clean_folder( filename )
+                   filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                   archive.save(filepath)
 
-                expanded_folder =  app.config['UPLOAD_FOLDER'] + '/' + tmp_folder
-                print 'expanding ' + filepath + ' to ' + expanded_folder
-                untar( filepath, expanded_folder)
+                   tmp_folder =  get_clean_folder( filename )
 
-                # Look in root of archive first
-		tmp_application_dir = expanded_folder
-                application_onload =  make_application_from_folder( tmp_application_dir )
+                   expanded_folder =  app.config['UPLOAD_FOLDER'] + '/' + tmp_folder
+                   print 'expanding ' + filepath + ' to ' + expanded_folder
+                   untar( filepath, expanded_folder)
 
-                # If not found, look in first folder of archive
-		if not application_onload :
+                   # Look in root of archive first
+	 	   tmp_application_dir = expanded_folder
+                   application_onload =  make_application_from_folder( tmp_application_dir )
+
+                   # If not found, look in first folder of archive
+		   if not application_onload :
                 	local_dir=list_folders( expanded_folder )[0]
                 	tmp_application_dir = expanded_folder + '/' + local_dir
 			application_onload =  make_application_from_folder( tmp_application_dir )
 		
-		else:
+		   else:
 			return  # TODO Should throw an exception
 
-                # Move all files from local_dir into application_dir
-                application_dir =  app_get_application_dir( application_onload )
-		# mv local_dir/* application_dir
-		# Remove anything that was there first.
-		if os.path.exists( application_dir ):
+                   # Move all files from local_dir into application_dir
+                   application_dir =  app_get_application_dir( application_onload )
+		   # mv local_dir/* application_dir
+		   # Remove anything that was there first.
+		   if os.path.exists( application_dir ):
 			shutil.rmtree( application_dir )
-                print 'Moving file in ' + tmp_application_dir + ' to ' + application_dir
-		names = os.listdir( tmp_application_dir)
-		# Ensure target directory exists
-		if not os.path.exists( application_dir ):
+                   print 'Moving file in ' + tmp_application_dir + ' to ' + application_dir
+		   names = os.listdir( tmp_application_dir)
+		   # Ensure target directory exists
+		   if not os.path.exists( application_dir ):
 			os.makedirs( application_dir)
-		for name in names:
+		   for name in names:
 			shutil.move( tmp_application_dir + '/' + name, application_dir )
 #                untar( filepath, app_folder)
 
-                #print 'loading application at ' + os.path.join(app.config['APPS_FOLDER'], app_folder)
-                application = upsert_application( application_dir )
-		return application
+                   #print 'loading application at ' + os.path.join(app.config['APPS_FOLDER'], app_folder)
+                   application = upsert_application( application_dir )
+		   return application
 	return
 
 # Update application based on config file
