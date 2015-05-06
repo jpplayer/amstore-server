@@ -1,4 +1,4 @@
-yum install -y gcc python-pip
+yum install -y gcc epel-release python-pip
 pip install virtualenv
 virtualenv flask
 
