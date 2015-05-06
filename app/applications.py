@@ -12,7 +12,7 @@ auth = HTTPBasicAuth()
 
 @auth.get_password
 def get_password(username):
-    if username == 'contrib':
+    if username == 'contributor':
         return 'hortonworks455!'
     return None
 
@@ -133,11 +133,12 @@ def app_upsert_latest_application( application ):
 def app_create_application_from_archive( archive ):
 
         if archive and allowed_file(archive.filename):
-		# This can be either a .tar.gz/.tgz or it can directly be a .yaml
+		# This can be either a .tar.gz/.tgz or it can directly be a .yml
 
                 filename = secure_filename(archive.filename)
 
-		if filename.endswith('.yaml'):
+		if filename.endswith('.yml'):
+			# TODO
 			a=''
 		else:
 
