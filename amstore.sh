@@ -16,7 +16,7 @@ function start() {
 
 function stop() {
       kill -- -$(cat /var/run/amstore.pid)
-      rm -f /var/run/amstore.pid
+      echo "" > /var/run/amstore.pid
 }
 
 case "$1" in
