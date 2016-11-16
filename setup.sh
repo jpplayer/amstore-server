@@ -1,4 +1,30 @@
+#!/bin/bash
+
+# Centos
+if [[ -f /etc/redhat-release ]]; then
 yum install -y gcc epel-release python-pip
+systemctl stop firewalld
+# Ubuntu
+elif [[ -f /etc/debian_version ]]; then
+apt install -y gcc python-pip
+ufw disable
+fi
+
+# Create user amstore if not exists
+id -u amstore &>/dev/null || useradd amstore
+
+# Create app folders
+mkdir -p /var/lib/amstore/APPS
+mkdir -p /var/lib/amstore/TMP
+chown -R amstore /var/lib/amstore
+
+touch /var/run/amstore.pid
+chown amstore /var/run/amstore.pid
+
+touch /var/log/amstore.log
+chown amstore /var/log/amstore.log
+
+# Install flask
 pip install virtualenv
 virtualenv flask
 
@@ -17,7 +43,4 @@ flask/bin/pip install coverage
 flask/bin/pip install pyyaml
 flask/bin/pip install flask-httpauth
 
-mkdir -p /var/lib/amstore/APPS
-mkdir -p /var/lib/amstore/TMP
 
-service iptables stop
