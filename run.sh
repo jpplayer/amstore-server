@@ -15,4 +15,4 @@ echo $DIR
 
 DIR=`getdir`
 $DIR/start.py >> $LOGFILE 2>&1 &
-echo "Started amstore on port 8025. Log file is $LOGFILE."
+echo "Started amstore on port 5025. Log file is $LOGFILE"

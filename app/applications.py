@@ -13,7 +13,7 @@ auth = HTTPBasicAuth()
 @auth.get_password
 def get_password(username):
     if username == 'contributor':
-        return 'hortonworks455!'
+        return 'hortonworks408!'
     return None
 
 @auth.error_handler

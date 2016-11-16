@@ -13,6 +13,9 @@ fi
 # Create user amstore if not exists
 id -u amstore &>/dev/null || useradd amstore
 
+# Ensure amstore user has access to files
+chown -R amstore .
+
 # Create app folders
 mkdir -p /var/lib/amstore/APPS
 mkdir -p /var/lib/amstore/TMP
